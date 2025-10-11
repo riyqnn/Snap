@@ -1,6 +1,6 @@
 export default function Navbar() {
     return (
-        <div className="fixed w-full h-fit p-5 bg-white-secondary flex justify-center items-center border-b border-black-300 shadow-md text-black-primary">
+        <div className="fixed w-full h-20 p-5 z-50 bg-white-secondary flex justify-center items-center border-b border-black-300 shadow-md text-black-primary">
             <div className="w-[90%] h-full flex justify-between items-center">
                 <div className="w-fit h-full flex gap-8 items-center font-semibold text-[15px] leading-[100%] tracking-[0]">
                     <img className="w-[100px]" src="/snap.svg" alt="snap logo" />

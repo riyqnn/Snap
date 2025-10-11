@@ -1,6 +1,7 @@
 import HeroSection from "@/components/HeroSection";
 import Navbar from "@/components/Navbar";
 import Promotion from "@/components/Promotion";
+import HowSection from "@/components/HowSection";
 import Image from "next/image";
 
 export default function Home() {
@@ -9,6 +10,7 @@ export default function Home() {
       <Navbar />
       <HeroSection />
       <Promotion />
+      <HowSection />
     </div>
   );
 }
