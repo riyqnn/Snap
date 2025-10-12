@@ -12,7 +12,7 @@ export default function Promotion() {
     });
   }, []);
     return (
-        <div className="w-full h-[200px] border bg-white-primary border-black-primary flex gap-28 justify-center items-center">
+        <div className="w-full h-[200px] border-y bg-white-primary border-black-primary flex gap-28 justify-center items-center">
             <div data-aos="fade-down" className="flex items-end gap-5 font-extrabold">
                 <h2 className="text-blue-primary text-6xl [-webkit-text-stroke:1px_white] [text-shadow:-4px_4px_0px_#544E4E]">3,877,840</h2>
                 <p className="text-black-primary text-2xl">SNAPs Minted</p>

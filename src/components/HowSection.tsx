@@ -14,7 +14,7 @@ export default function HowSection() {
 
     return (
         <section className="bg-white-primary bg-[url('/how-background.png')] bg-cover bg-center px-6 py-20 relative overflow-hidden">
-            <div data-aos="fade-down" className="max-w-7xl mx-auto relative z-10">
+            <div className="max-w-7xl mx-auto relative z-10">
                 <div className="text-center mb-16">
                     <h2 className="text-7xl text-white-primary font-bold mb-4 [-webkit-text-stroke:1px_#544E4E] [text-shadow:-4px_4px_0px_#544E4E]">
                         HOW <span className='text-blue-primary [-webkit-text-stroke:1px_white] [text-shadow:-4px_4px_0px_#544E4E]'>SNAP</span> WORKS?
