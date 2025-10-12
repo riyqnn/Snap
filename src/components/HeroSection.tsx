@@ -1,5 +1,5 @@
-import { CreditCardIcon } from "@heroicons/react/16/solid"
 import TextRotator from "./atom/TextRotator"
+import ConnectWallet from "./atom/ConnectWallet"
 
 export default function HeroSection() {
     return (
@@ -15,7 +15,7 @@ export default function HeroSection() {
                     <h1 className="md:w-2xl w-xl custom-stroke-white text-5xl md:text-6xl font-extrabold leading-tight">
                         Use SNAP to Authenticate your <span className="custom-stroke-blue"><TextRotator /></span><br /> On BlockChain
                     </h1>
-                    <button className="bg-white-primary border p-3 justify-center gap-4 text-blue-primary border-black-primary rounded-3xl w-64 flex"><CreditCardIcon className="size-6 text-blue-primary" />Connect Wallet</button>
+                    <ConnectWallet />
                 </div>
                 <img
                 className="z-10 hidden lg:block w-[440px] object-cover pointer-events-none select-none"
