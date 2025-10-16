@@ -1,14 +1,29 @@
 "use client";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/solid';
 
 export default function Navbar() {
-
+// border-b border-black-300 shadow-md
     const [isOpen, setIsOpen] = useState(false);
+    const [scrolled, setScrolled] = useState(false);
+
+    useEffect(() => {
+        const handleScroll = () => {
+        const offset = window.scrollY;
+        if (offset > 50) {
+            setScrolled(true);
+        } else {
+            setScrolled(false);
+        }
+        };
+
+        window.addEventListener("scroll", handleScroll);
+        return () => window.removeEventListener("scroll", handleScroll);
+    }, []);
 
     return (
-        <div className="fixed w-full h-20 p-5 z-50 bg-white-secondary flex justify-center items-center border-b border-black-300 shadow-md text-black-primary">
+            <div className={`fixed w-full h-20 p-5 z-50 flex justify-center items-center text-black-primary transition-all duration-300 ${scrolled && "bg-white-secondary shadow-md"}`}>
             <div className="w-[90%] h-full flex justify-between items-center">
                 <div className="w-fit flex h-full gap-8 items-center font-semibold text-[15px] leading-[100%] tracking-[0]">
                     <div className="md:hidden text-black-primary">
