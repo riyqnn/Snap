@@ -31,9 +31,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html className="bg-white-primary" lang="en">
+    <html className="bg-white-primary h-full w-full p-0 m-0" lang="en">
       <body
-        className={`${poppins.variable} antialiased`}
+        className={`${poppins.variable} antialiased h-full w-full p-0 m-0`}
       >
         <Web3Provider>
           {children}
