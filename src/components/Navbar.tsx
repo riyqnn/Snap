@@ -2,11 +2,14 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/solid';
+import { useAccount } from 'wagmi';
+import ConnectWallet from './atom/ConnectWallet';
 
 export default function Navbar() {
 // border-b border-black-300 shadow-md
     const [isOpen, setIsOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
+    const { address, isConnected } = useAccount();
 
     useEffect(() => {
         const handleScroll = () => {
@@ -43,7 +46,10 @@ export default function Navbar() {
                         <a className="hover:scale-110 transition-transform duration-300" href="">Get Verify</a>
                     </div>
                 </div>
-                <a className="bg-blue-secondary p-2 rounded-3xl text-white-primary font-semibold border-1 border-solid border-black" href="">Create a Snap</a>
+                <div className='flex gap-10 justify-center items-center'>
+                    <a className={`bg-blue-secondary ${isConnected ? "block" : "hidden"} p-2 rounded-3xl text-white-primary font-semibold border-1 border-solid border-black`} href="">Create a Snap</a>
+                    <ConnectWallet />
+                </div>
             </div>
 
             {/* --- Menu Mobile Sidebar --- */}

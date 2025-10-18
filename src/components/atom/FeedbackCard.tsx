@@ -16,12 +16,6 @@
 // import React from "react";
 
 interface FeedbackCardProps {
-  src: string;
-  role: string;
-  message: string;
-}
-
-interface FeedbackCardProps {
   name: string;
   src: string;
   role: string;
@@ -30,7 +24,7 @@ interface FeedbackCardProps {
 
 export default function FeedbackCard({ name, src, role, message }: FeedbackCardProps) {
   return (
-    <div className="bg-white border border-black-primary shadow-lg p-6 rounded-xl shadow-md">
+    <div className="bg-white border border-black-primary shadow-lg p-6 rounded-xl hover:scale-105 transition-transform duration-300">
       <div className="flex items-center gap-3 mb-4">
         <img src={src} alt={name} className="w-10 h-10 rounded-full" />
         <div>
