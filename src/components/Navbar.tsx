@@ -42,13 +42,13 @@ export default function Navbar() {
                         <Link className="hover:scale-110 transition-transform duration-300" href="/about">About</Link>
                         <Link className="hover:scale-110 transition-transform duration-300" href="/museum">Museum</Link>
                         <Link className="hover:scale-110 transition-transform duration-300" href="/collection">Collection</Link>
-                        <Link className="hover:scale-110 transition-transform duration-300" href="/get-verify">Get Verify</Link>
+                        <Link className="hover:scale-110 transition-transform duration-300" href="/brand/create">Get Verify</Link>
                     </div>
                 </div>
                 <div className='flex gap-10 justify-center items-center'>
                     <Link 
-                      href="/brand/create"
-                      className={`bg-blue-secondary ${isConnected ? "block" : "hidden"} p-2 rounded-3xl text-white-primary font-semibold border-1 border-solid border-black`}
+                      href="/series/create"
+                      className={`bg-blue-secondary hidden ${isConnected ? "md:block" : "hidden"} p-2 rounded-3xl text-white-primary font-semibold border-1 border-solid border-black`}
                     >
                       Create a Snap
                     </Link>
@@ -85,6 +85,12 @@ export default function Navbar() {
                 <Link href="/museum" className="w-fit block py-3 font-semibold text-2xl leading-[100%] hover:scale-110 transition-transform duration-300">Museum</Link>
                 <Link href="/collection" className="w-fit block py-3 font-semibold text-2xl leading-[100%] hover:scale-110 transition-transform duration-300">Collection</Link>
                 <Link href="/get-verify" className="w-fit block py-3 font-semibold text-2xl leading-[100%] hover:scale-110 transition-transform duration-300">Get Verify</Link>
+                <Link 
+                    href="/brand/create"
+                    className={`bg-blue-secondary max-w-fit ${isConnected ? "block" : "hidden"} p-2 rounded-3xl text-white-primary font-semibold border-1 border-solid border-black`}
+                >
+                    Create a Snap
+                </Link>
             </div>
         </div>
     )
