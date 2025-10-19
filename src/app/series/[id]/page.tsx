@@ -28,32 +28,30 @@ const ProductDetail = () => {
     if (!id) return;
 
     const fetchSeriesData = async () => {
-      const result = await readSeries(Number(id));
-      if (result.success && result.data) {
-        setSeries(result.data);
-        if (
-          isConnected &&
-          address &&
-          result.data.brandOwner.toLowerCase() === address.toLowerCase()
-        ) {
-          setIsOwner(true);
+      try {
+        const result = await readSeries(Number(id));
+        if (result.success && result.data) {
+          setSeries(result.data);
+          if (address && result.data.brandOwner.toLowerCase() === address.toLowerCase()) {
+            setIsOwner(true);
+          }
         }
-      }
 
-      const claimers = await getSeriesClaimers(Number(id));
-      if (claimers.success && claimers.data) {
-        const formatted = claimers.data.map((addr: string) => ({
-          address: addr,
-          network: "Base",
-          time: "Just now",
-          mints: 1,
-        }));
-        setCollectors(formatted);
-      }
+        const claimers = await getSeriesClaimers(Number(id));
+        if (claimers.success && claimers.data) {
+          setCollectors(claimers.data.map(addr => ({
+            address: addr,
+            network: "Base",
+            time: "Just now",
+            mints: 1
+          })));
+        }
+      } catch {}
     };
 
     fetchSeriesData();
-  }, [id, address, isConnected]);
+  }, [id, address]);
+
 
   // 🔹 Generate random claim codes
   const handleGenerateCodes = async () => {

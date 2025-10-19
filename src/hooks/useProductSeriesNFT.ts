@@ -92,22 +92,25 @@ export const useProductSeriesNFT = () => {
   // Get contract instance
   const getContract = useCallback(async (needSigner = false): Promise<Contract> => {
     try {
-      if (!window.ethereum) throw new Error('MetaMask not installed');
-      
-      const provider = new BrowserProvider(window.ethereum);
-      const contract = new Contract(
-        CONTRACT_ADDRESS,
-        ProductSeriesNFT,
-        needSigner ? await provider.getSigner() : provider
-      );
-      
-      return contract;
+      let provider;
+
+      if (needSigner) {
+        if (!window.ethereum) throw new Error("Wallet not connected");
+        provider = new BrowserProvider(window.ethereum);
+        const signer = await provider.getSigner();
+        return new Contract(CONTRACT_ADDRESS, ProductSeriesNFT, signer);
+      } else {
+        provider = new ethers.JsonRpcProvider("https://sepolia.base.org");
+        return new Contract(CONTRACT_ADDRESS, ProductSeriesNFT, provider);
+      }
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+      const errorMessage = err instanceof Error ? err.message : "Unknown error";
       setError(errorMessage);
       throw err;
     }
   }, []);
+
+
 
   // Mint new series
   const mintSeries = useCallback(async (
