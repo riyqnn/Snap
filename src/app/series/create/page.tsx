@@ -1,17 +1,106 @@
 "use client";
 import Navbar from "@/components/Navbar";
-import { useState } from "react";
+import { useState, useRef } from "react";
+import { useProductSeriesNFT } from "@/hooks/useProductSeriesNFT";
 
 export default function CreateSeries() {
-    const [imagePreview, setImagePreview] = useState(null);
-    const handleFileChange = () => {};
+    const { mintSeries, loading, error } = useProductSeriesNFT();
 
+    const [imagePreview, setImagePreview] = useState<string | null>(null);
+    const [file, setFile] = useState<File | null>(null);
     const [brandName, setBrandName] = useState("");
     const [description, setDescription] = useState("");
-    const setMaxSpl = () => {};
-    const setProdBatch = () => {};
-    const handleSubmit = () => {};
+    const [maxSupply, setMaxSupply] = useState<number>(0);
+    const [batchNumber, setBatchNumber] = useState<number>(0);
+    const [uploading, setUploading] = useState(false);
+    const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
+    const inputRef = useRef<HTMLInputElement>(null);
+
+    // === Upload file preview ===
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const selectedFile = e.target.files?.[0];
+        if (!selectedFile) return;
+        setFile(selectedFile);
+
+        const reader = new FileReader();
+        reader.onloadend = () => setImagePreview(reader.result as string);
+        reader.readAsDataURL(selectedFile);
+    };
+
+    // === Upload ke Pinata ===
+    const uploadToPinata = async (file: File): Promise<string> => {
+        const PINATA_JWT = process.env.NEXT_PUBLIC_PINATA_JWT;
+        if (!PINATA_JWT) throw new Error("Missing Pinata JWT token!");
+
+        setUploading(true);
+        try {
+            const formData = new FormData();
+            formData.append("file", file);
+
+            const metadata = JSON.stringify({
+                name: `series-artwork-${brandName}`,
+            });
+            formData.append("pinataMetadata", metadata);
+
+            const options = JSON.stringify({
+                cidVersion: 1,
+            });
+            formData.append("pinataOptions", options);
+
+            const res = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${PINATA_JWT}`,
+                },
+                body: formData,
+            });
+
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || "Failed to upload to Pinata");
+
+            return `https://gateway.pinata.cloud/ipfs/${data.IpfsHash}`;
+        } finally {
+            setUploading(false);
+        }
+    };
+
+    // === Handle submit create series ===
+    const handleSubmit = async () => {
+        try {
+            setSuccessMessage(null);
+
+            if (!brandName || !description || !file || !maxSupply || !batchNumber) {
+                alert("Please fill all required fields!");
+                return;
+            }
+
+            const imageURI = await uploadToPinata(file);
+
+            const tx = await mintSeries(
+                brandName,
+                imageURI,
+                description,
+                maxSupply,
+                batchNumber
+            );
+
+            if (tx) {
+                setSuccessMessage("✅ Series successfully created!");
+                setBrandName("");
+                setDescription("");
+                setFile(null);
+                setImagePreview(null);
+                setMaxSupply(0);
+                setBatchNumber(0);
+            }
+        } catch (err: any) {
+            console.error("Error creating series:", err);
+            alert(err.message || "Failed to create series");
+        }
+    };
+
+    // === JSX (unchanged layout) ===
     return (
         <div className=" bg-white-secondary min-h-screen">
             <Navbar />
@@ -22,7 +111,6 @@ export default function CreateSeries() {
                     <div>
                         <div className="border border-[#0052FF] rounded-3xl bg-white p-6 shadow-md">
                             <div className="border border-[#0052FF] rounded-2xl p-10 flex flex-col items-center justify-center text-center relative">
-                                {/* Gambar preview (kalau ada) */}
                                 {imagePreview ? (
                                     <img
                                         src={imagePreview}
@@ -30,7 +118,7 @@ export default function CreateSeries() {
                                         className="w-24 h-24 object-cover rounded-full mb-4 shadow"
                                     />
                                 ) : (
-                                    <img src="/Upload-icon.svg" alt="" ></img>
+                                    <img src="/Upload-icon.svg" alt="" />
                                 )}
 
                                 <p className="font-semibold mb-1 text-[#0052FF]">
@@ -40,16 +128,15 @@ export default function CreateSeries() {
                                     PNG, JPEG, GIF, WEBP - Max. 4 MB
                                 </p>
 
-                                {/* Input file tersembunyi */}
                                 <input
                                     type="file"
                                     accept="image/*"
                                     id="imageUpload"
                                     className="hidden"
                                     onChange={handleFileChange}
+                                    ref={inputRef}
                                 />
 
-                                {/* Tombol trigger */}
                                 <label
                                     htmlFor="imageUpload"
                                     className="inline-flex cursor-pointer items-center gap-2 bg-[#0052FF] hover:bg-[#0052FF] active:bg-[#0052FF] focus:outline-none focus:ring-2 focus:ring-[#0052FF] text-white text-sm font-bold rounded-full px-6 py-3 shadow-[3px_4px_0_rgba(51,38,131,0.8)]"
@@ -95,12 +182,9 @@ export default function CreateSeries() {
 
                     {/* Input Fields Section */}
                     <div className="md:col-span-2 space-y-6">
-                        {/* POAP title */}
+                        {/* SNAP Title */}
                         <div>
-                            <label
-                                htmlFor="poap-title"
-                                className="block text-sm font-semibold mb-1"
-                            >
+                            <label htmlFor="poap-title" className="block text-sm font-semibold mb-1">
                                 SNAP Title <span className="text-red-600">*</span>
                             </label>
                             <input
@@ -117,12 +201,9 @@ export default function CreateSeries() {
                             </div>
                         </div>
 
-                        {/* POAP description */}
+                        {/* SNAP Description */}
                         <div>
-                            <label
-                                htmlFor="poap-description"
-                                className="block text-sm font-semibold mb-1"
-                            >
+                            <label htmlFor="poap-description" className="block text-sm font-semibold mb-1">
                                 SNAP description <span className="text-red-600">*</span>
                             </label>
                             <textarea
@@ -138,10 +219,9 @@ export default function CreateSeries() {
                             </div>
                         </div>
 
-                        {/* Website */}
+                        {/* Quantity & Batch */}
                         <section className="bg-[#eafaff]">
                             <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
-                                {/* Total Quantity */}
                                 <div>
                                     <label className="block text-sm font-semibold mb-2">
                                         <span className="bg-gradient-to-r from-[#0052FF] to-blue-500 bg-clip-text text-transparent">
@@ -150,14 +230,13 @@ export default function CreateSeries() {
                                         <span className="text-red-500 ml-1">*</span>
                                     </label>
                                     <input
-                                        onChange={(e) => setMaxSpl(Number(e.target.value))}
+                                        onChange={(e) => setMaxSupply(Number(e.target.value))}
                                         type="number"
                                         placeholder="Enter the Quantity number (e.g. 1, 2, 3)"
                                         className="w-full bg-white border border-[#0052FF] rounded-md px-4 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0052FF]"
                                     />
                                 </div>
 
-                                {/* Production Batch */}
                                 <div>
                                     <label className="block text-sm font-semibold mb-2">
                                         <span className="bg-gradient-to-r from-[#0052FF] to-blue-500 bg-clip-text text-transparent">
@@ -166,7 +245,7 @@ export default function CreateSeries() {
                                         <span className="text-red-500 ml-1">*</span>
                                     </label>
                                     <input
-                                        onChange={(e) => setProdBatch(e.target.value)}
+                                        onChange={(e) => setBatchNumber(Number(e.target.value))}
                                         type="number"
                                         placeholder="Enter the batch number (e.g. 1, 2, 3)"
                                         className="w-full bg-white border border-[#0052FF] rounded-md px-4 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0052FF]"
@@ -177,16 +256,27 @@ export default function CreateSeries() {
                     </div>
                 </div>
 
-                {/* Footer with actions */}
+                {/* Footer */}
                 <div className="mt-8 border-t border-[#0052FF] pt-6 flex justify-end gap-12 items-center">
                     <button
                         onClick={handleSubmit}
-                        className="bg-[#0052FF] hover:bg-[#0052FF] active:bg-[#0052FF] text-white font-bold rounded-full px-8 py-3 shadow-[3px_4px_0_rgba(51,38,131,0.8)] focus:outline-none"
+                        disabled={loading || uploading}
+                        className="bg-[#0052FF] hover:bg-[#0052FF] active:bg-[#0052FF] text-white font-bold rounded-full px-8 py-3 shadow-[3px_4px_0_rgba(51,38,131,0.8)] focus:outline-none disabled:opacity-60 disabled:cursor-not-allowed"
                     >
-                        Create SNAP
+                        {uploading
+                            ? "Uploading..."
+                            : loading
+                            ? "Creating..."
+                            : "Create SNAP"}
                     </button>
+                    {successMessage && (
+                        <p className="text-green-600 text-sm font-medium">{successMessage}</p>
+                    )}
+                    {error && (
+                        <p className="text-red-500 text-sm font-medium">⚠️ {error}</p>
+                    )}
                 </div>
             </section>
         </div>
-    )
+    );
 }

@@ -37,7 +37,7 @@ export default function Navbar() {
                             )}
                         </button>
                     </div>
-                    <img className="w-[100px]" src="/snap.svg" alt="snap logo" />
+                    <Link href="/"><img className="w-[100px]" src="/snap.svg" alt="snap logo" /></Link>
                     <div className="w-fit hidden md:flex h-full gap-8 items-center font-semibold text-[15px] leading-[100%] tracking-[0]">  
                         <Link className="hover:scale-110 transition-transform duration-300" href="/about">About</Link>
                         <Link className="hover:scale-110 transition-transform duration-300" href="/museum">Museum</Link>
