@@ -1,9 +1,10 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { Calendar, ExternalLink, Users } from "lucide-react";
+import { Calendar, ExternalLink, Users, Database } from "lucide-react";
 import { useAccount } from "wagmi";
 import useProductSeriesNFT from "@/hooks/useProductSeriesNFT";
+import { supabase } from "../../../../lib/supabaseClient";
 
 interface Collector {
   address: string;
@@ -12,9 +13,19 @@ interface Collector {
   mints: number;
 }
 
+interface ClaimCode {
+  id: string;
+  claim_code: string;
+  is_claimed: boolean;
+  claimed_by?: string | null;
+  claimed_at?: string | null;
+  created_at: string;
+  serial_number: number;
+}
+
 const ProductDetail = () => {
   const { id } = useParams();
-  const { address, isConnected } = useAccount();
+  const { address } = useAccount();
   const { readSeries, getSeriesClaimers, generateClaimLinks, loading } =
     useProductSeriesNFT();
 
@@ -22,8 +33,9 @@ const ProductDetail = () => {
   const [collectors, setCollectors] = useState<Collector[]>([]);
   const [isOwner, setIsOwner] = useState(false);
   const [generatedCodes, setGeneratedCodes] = useState<string[]>([]);
+  const [allCodes, setAllCodes] = useState<ClaimCode[]>([]); // <-- semua kode dari database
 
-  // 🔹 Fetch data series + claimers
+  // 🔹 Fetch data series + claimers + claim codes
   useEffect(() => {
     if (!id) return;
 
@@ -32,41 +44,77 @@ const ProductDetail = () => {
         const result = await readSeries(Number(id));
         if (result.success && result.data) {
           setSeries(result.data);
-          if (address && result.data.brandOwner.toLowerCase() === address.toLowerCase()) {
+          if (
+            address &&
+            result.data.brandOwner.toLowerCase() === address.toLowerCase()
+          ) {
             setIsOwner(true);
           }
         }
 
         const claimers = await getSeriesClaimers(Number(id));
         if (claimers.success && claimers.data) {
-          setCollectors(claimers.data.map(addr => ({
-            address: addr,
-            network: "Base",
-            time: "Just now",
-            mints: 1
-          })));
+          setCollectors(
+            claimers.data.map((addr) => ({
+              address: addr,
+              network: "Base",
+              time: "Just now",
+              mints: 1,
+            }))
+          );
         }
-      } catch {}
+
+        // 🔹 Fetch claim codes dari database
+        const { data: codesData, error } = await supabase
+          .from("claim_links")
+          .select("*")
+          .eq("series_id", Number(id))
+          .order("created_at", { ascending: false });
+
+        if (!error && codesData) {
+          setAllCodes(codesData as ClaimCode[]);
+        }
+      } catch (err) {
+        console.error("Error fetching series data:", err);
+      }
     };
 
     fetchSeriesData();
   }, [id, address]);
 
-
   // 🔹 Generate random claim codes
   const handleGenerateCodes = async () => {
     if (!isOwner || !series) return;
 
-    const numCodes = 5; // contoh: generate 5 claim codes
-    const newCodes = Array.from({ length: numCodes }, () =>
-      crypto.randomUUID()
-    );
+    const numCodes = 1; // contoh: generate 1 claim codes
+    const newCodes = Array.from({ length: numCodes }, () => crypto.randomUUID());
 
     try {
       const tx = await generateClaimLinks(Number(id), newCodes);
+
       if (tx.success) {
+        // 🔹 Simpan ke Supabase
+        const insertData = newCodes.map((code, index) => ({
+          series_id: Number(id),
+          serial_number: allCodes.length + index + 1, // teruskan numbering
+          claim_code: code,
+        }));
+
+        const { error } = await supabase.from("claim_links").insert(insertData);
+        if (error) throw error;
+
         setGeneratedCodes(newCodes);
-        alert("Claim codes generated successfully!");
+
+        // Refresh list dari database biar muncul langsung
+        const { data: updatedCodes } = await supabase
+          .from("claim_links")
+          .select("*")
+          .eq("series_id", Number(id))
+          .order("created_at", { ascending: false });
+
+        setAllCodes(updatedCodes || []);
+
+        alert("Claim codes generated & saved successfully!");
       } else {
         alert("Failed to generate claim codes: " + tx.error);
       }
@@ -151,17 +199,63 @@ const ProductDetail = () => {
             </div>
           </div>
 
-          {/* 🔹 Show generated claim codes */}
-          {isOwner && generatedCodes.length > 0 && (
-            <div className="mt-6 bg-white border border-gray-200 rounded-xl p-4">
-              <h3 className="font-semibold text-gray-800 mb-2">
-                Generated Claim Codes:
-              </h3>
-              <ul className="space-y-1 text-sm font-mono text-gray-700">
-                {generatedCodes.map((code, i) => (
-                  <li key={i}>• {code}</li>
-                ))}
-              </ul>
+          {/* 🔹 Section: Generated Claim Codes (dari Supabase) */}
+          {isOwner && (
+            <div className="mt-8 bg-white border border-gray-200 rounded-xl p-4">
+              <div className="flex items-center mb-3 gap-2">
+                <Database className="w-5 h-5 text-blue-primary" />
+                <h3 className="font-semibold text-gray-800">
+                  All Generated Claim Codes
+                </h3>
+              </div>
+
+              {allCodes.length > 0 ? (
+                <table className="w-full text-sm border-t border-gray-100">
+                  <thead>
+                    <tr className="text-left border-b border-gray-200">
+                      <th className="py-2 px-3">#</th>
+                      <th className="py-2 px-3">Claim Code</th>
+                      <th className="py-2 px-3">Status</th>
+                      <th className="py-2 px-3">Claimed By</th>
+                      <th className="py-2 px-3">Created</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {allCodes.map((code, i) => (
+                      <tr
+                        key={code.id}
+                        className="border-b border-gray-100 hover:bg-gray-50"
+                      >
+                        <td className="py-2 px-3">{code.serial_number}</td>
+                        <td className="py-2 px-3 font-mono text-gray-700">
+                          {code.claim_code}
+                        </td>
+                        <td className="py-2 px-3">
+                          {code.is_claimed ? (
+                            <span className="text-green-600 font-medium">
+                              ✅ Claimed
+                            </span>
+                          ) : (
+                            <span className="text-gray-500">—</span>
+                          )}
+                        </td>
+                        <td className="py-2 px-3 text-gray-700">
+                          {code.claimed_by
+                            ? `${code.claimed_by.slice(0, 6)}...${code.claimed_by.slice(-4)}`
+                            : "-"}
+                        </td>
+                        <td className="py-2 px-3 text-gray-500">
+                          {new Date(code.created_at).toLocaleDateString()}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <p className="text-sm text-gray-500 italic">
+                  No claim codes generated yet.
+                </p>
+              )}
             </div>
           )}
         </div>
