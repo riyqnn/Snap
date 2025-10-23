@@ -5,6 +5,8 @@ import { Calendar, ExternalLink, Users, Database } from "lucide-react";
 import { useAccount } from "wagmi";
 import useProductSeriesNFT from "@/hooks/useProductSeriesNFT";
 import { supabase } from "../../../../lib/supabaseClient";
+import Footer from "@/components/atom/Footer";
+import Navbar from "@/components/Navbar";
 
 interface Collector {
   address: string;
@@ -140,10 +142,12 @@ const ProductDetail = () => {
     );
 
   return (
-    <div className="min-h-screen bg-white p-8">
+    <>
+    <Navbar />
+    <div className="min-h-screen bg-white p-8 pt-30 bg-[url('/create-brand-background.png')] bg-cover bg-center">
       <div className="max-w-6xl mx-auto">
         {/* Product Detail Card */}
-        <div className="bg-gray-50 rounded-3xl p-8 mb-8">
+        <div className="bg-gray-50 rounded-3xl border shadow-lg p-8 mb-8">
           <div className="flex flex-col md:flex-row gap-8">
             {/* Product Image */}
             <div className="flex-shrink-0">
@@ -261,7 +265,7 @@ const ProductDetail = () => {
         </div>
 
         {/* Collectors Section */}
-        <div className="bg-white rounded-3xl border border-gray-200 p-8">
+        <div className="bg-white rounded-3xl border shadow-2xl border-gray-200 p-8">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2 px-4 py-2 bg-white-secondary bg-opacity-10 rounded-full">
@@ -347,6 +351,8 @@ const ProductDetail = () => {
         </div>
       </div>
     </div>
+    <Footer />
+    </>
   );
 };
 

@@ -5,6 +5,7 @@ import HowSection from "@/components/HowSection";
 import TrustedSection from "@/components/TrustedSection";
 import OutputSection from "@/components/OutputSection";
 import Image from "next/image";
+import Footer from "@/components/atom/Footer";
 
 export default function Home() {
   return (
@@ -15,6 +16,7 @@ export default function Home() {
       <HowSection />
       <TrustedSection />
       <OutputSection />
+      <Footer />
     </div>
   );
 }
