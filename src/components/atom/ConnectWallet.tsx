@@ -11,8 +11,7 @@ export default function ConnectWallet() {
 
   if (isConnected) {
     return (
-        <button onClick={() => disconnect()} className="bg-white-primary cursor-pointer border p-2 w-fit justify-center gap-4 text-blue-primary border-black-primary rounded-3xl w-64 flex"><CreditCardIcon className="size-6 text-blue-primary" />Connected to {`${address.slice(0, 6)}...${address.slice(-4)}`}</button>
-    );
+      <button onClick={() => disconnect()} className="bg-white-primary cursor-pointer border p-2 w-fit justify-center gap-4 text-blue-primary border-black-primary rounded-3xl w-64 flex"><CreditCardIcon className="size-6 text-blue-primary" />Connected to {address ? `${address.slice(0, 6)}...${address.slice(-4)}` : "No wallet"}</button>    );
   }
 
   return (

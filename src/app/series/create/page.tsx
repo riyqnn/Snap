@@ -81,8 +81,7 @@ export default function CreateSeries() {
                 brandName,
                 imageURI,
                 description,
-                maxSupply,
-                batchNumber
+                maxSupply
             );
 
             if (tx) {
