@@ -75,7 +75,7 @@ export default function CollectionPage() {
       const provider = new ethers.JsonRpcProvider(READ_RPC);
       const readContract = new Contract(
         CONTRACT_ADDRESS,
-        ProductSeriesNFTAbi.abi || ProductSeriesNFTAbi,
+        ProductSeriesNFTAbi,
         provider
       );
 
