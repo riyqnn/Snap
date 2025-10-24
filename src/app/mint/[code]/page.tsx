@@ -273,7 +273,7 @@ const Mint: React.FC = () => {
 
             {/* Footer Text */}
             <p className="text-xs text-gray-500 text-center mt-4">
-              By minting this SNAP, you accept SNAP's{" "}
+              By minting this SNAP, you accept SNAPs{" "}
               <span className="text-blue-600 underline cursor-pointer">Terms of Service</span>
               {" "}and{" "}
               <span className="text-blue-600 underline cursor-pointer">Privacy Policy</span>.

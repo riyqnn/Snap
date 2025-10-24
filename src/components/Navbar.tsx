@@ -16,9 +16,9 @@ export default function Navbar({ className = "" }: NavbarProps) {
   const [collectionDropdown, setCollectionDropdown] = useState(false);
   const [mobileBrandOpen, setMobileBrandOpen] = useState(false);
   const [mobileCollectionOpen, setMobileCollectionOpen] = useState(false);
-  
+
   const { address, isConnected } = useAccount();
-  
+
   const brandRef = useRef<HTMLDivElement>(null);
   const collectionRef = useRef<HTMLDivElement>(null);
 
@@ -53,19 +53,21 @@ export default function Navbar({ className = "" }: NavbarProps) {
 
   return (
     <>
+      {/* Navbar utama (auto hide pas hamburger aktif) */}
       <div
         className={
-          `fixed w-full h-20 p-5 z-50 flex justify-center items-center text-black-primary transition-all duration-300 ` +
-          (scrolled ? "bg-white-secondary shadow-md " : " ") +
-          className
+          `fixed w-full h-20 p-5 z-50 flex justify-center items-center text-black-primary transition-all duration-300
+          ${scrolled ? "bg-white-secondary shadow-md " : ""}
+          ${isOpen ? "opacity-0 pointer-events-none" : "opacity-100"} 
+          ` + className
         }
       >
         <div className="w-[90%] h-full flex justify-between items-center">
           <div className="w-fit flex h-full gap-8 items-center font-semibold text-[15px] leading-[100%] tracking-[0]">
             {/* Mobile Menu Button */}
             <div className="xl:hidden text-black-primary">
-              <button 
-                className='cursor-pointer hover:scale-110 transition-transform duration-200' 
+              <button
+                className='cursor-pointer hover:scale-110 transition-transform duration-200'
                 onClick={() => setIsOpen(!isOpen)}
                 aria-label="Toggle menu"
               >
@@ -79,7 +81,7 @@ export default function Navbar({ className = "" }: NavbarProps) {
             </Link>
 
             {/* Desktop Menu */}
-            <div className="w-fit hidden xl:flex h-full gap-8 items-center font-semibold text-[15px] leading-[100%] tracking-[0]">  
+            <div className="w-fit hidden xl:flex h-full gap-8 items-center font-semibold text-[15px] leading-[100%] tracking-[0]">
               <Link className="hover:scale-110 hover:text-blue-secondary transition-all duration-300" href="/about">
                 About
               </Link>
@@ -99,7 +101,7 @@ export default function Navbar({ className = "" }: NavbarProps) {
                   Brand
                   <ChevronDownIcon className={`h-4 w-4 transition-transform duration-300 ${brandDropdown ? 'rotate-180' : ''}`} />
                 </button>
-                
+
                 {brandDropdown && (
                   <div className="absolute top-full mt-2 w-48 bg-white-secondary rounded-xl shadow-lg border border-gray-200 overflow-hidden animate-fadeIn">
                     <Link
@@ -132,7 +134,7 @@ export default function Navbar({ className = "" }: NavbarProps) {
                   Collection
                   <ChevronDownIcon className={`h-4 w-4 transition-transform duration-300 ${collectionDropdown ? 'rotate-180' : ''}`} />
                 </button>
-                
+
                 {collectionDropdown && (
                   <div className="absolute top-full mt-2 w-48 bg-white-secondary rounded-xl shadow-lg border border-gray-200 overflow-hidden animate-fadeIn">
                     <Link
@@ -158,7 +160,7 @@ export default function Navbar({ className = "" }: NavbarProps) {
           {/* Right Section */}
           <div className='flex gap-4 justify-center items-center'>
             {isConnected && (
-              <Link 
+              <Link
                 href="/series/create"
                 className="bg-blue-secondary hidden xl:block px-5 py-2.5 rounded-full text-white-primary font-semibold border border-black hover:bg-blue-600 hover:scale-105 transition-all duration-300 shadow-sm"
               >
@@ -183,8 +185,8 @@ export default function Navbar({ className = "" }: NavbarProps) {
         <div className='flex flex-col h-full'>
           {/* Header */}
           <div className='flex py-5 px-6 gap-3 items-center border-b border-gray-200'>
-            <button 
-              className='cursor-pointer hover:scale-110 transition-transform duration-200' 
+            <button
+              className='cursor-pointer hover:scale-110 transition-transform duration-200'
               onClick={() => setIsOpen(false)}
               aria-label="Close menu"
             >
@@ -196,16 +198,16 @@ export default function Navbar({ className = "" }: NavbarProps) {
           {/* Menu Items */}
           <div className='flex-1 overflow-y-auto py-6 px-6'>
             <nav className='flex flex-col gap-2'>
-              <Link 
-                href="/about" 
+              <Link
+                href="/about"
                 onClick={handleMobileClick}
                 className="w-full py-3 px-4 font-semibold text-lg rounded-lg hover:bg-blue-secondary/10 hover:text-blue-secondary transition-all duration-200"
               >
                 About
               </Link>
 
-              <Link 
-                href="/museum" 
+              <Link
+                href="/museum"
                 onClick={handleMobileClick}
                 className="w-full py-3 px-4 font-semibold text-lg rounded-lg hover:bg-blue-secondary/10 hover:text-blue-secondary transition-all duration-200"
               >
@@ -221,7 +223,7 @@ export default function Navbar({ className = "" }: NavbarProps) {
                   Brand
                   <ChevronDownIcon className={`h-5 w-5 transition-transform duration-300 ${mobileBrandOpen ? 'rotate-180' : ''}`} />
                 </button>
-                
+
                 <div className={`overflow-hidden transition-all duration-300 ${mobileBrandOpen ? 'max-h-40' : 'max-h-0'}`}>
                   <div className="pl-4 pt-1 flex flex-col gap-1">
                     <Link
@@ -251,7 +253,7 @@ export default function Navbar({ className = "" }: NavbarProps) {
                   Collection
                   <ChevronDownIcon className={`h-5 w-5 transition-transform duration-300 ${mobileCollectionOpen ? 'rotate-180' : ''}`} />
                 </button>
-                
+
                 <div className={`overflow-hidden transition-all duration-300 ${mobileCollectionOpen ? 'max-h-40' : 'max-h-0'}`}>
                   <div className="pl-4 pt-1 flex flex-col gap-1">
                     <Link
@@ -275,7 +277,7 @@ export default function Navbar({ className = "" }: NavbarProps) {
 
             {/* Create Snap Button for Mobile */}
             {isConnected && (
-              <Link 
+              <Link
                 href="/series/create"
                 onClick={handleMobileClick}
                 className="mt-6 w-full block text-center bg-blue-secondary px-5 py-3 rounded-full text-white-primary font-semibold border border-black hover:bg-blue-600 transition-all duration-300 shadow-sm"
@@ -298,7 +300,7 @@ export default function Navbar({ className = "" }: NavbarProps) {
             transform: translateY(0);
           }
         }
-        
+
         .animate-fadeIn {
           animation: fadeIn 0.2s ease-out;
         }

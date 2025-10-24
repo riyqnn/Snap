@@ -95,7 +95,7 @@ const ClaimCodePage: React.FC = () => {
 
           {/* Footer Text */}
           <p className="text-xs text-gray-500 text-center mt-6">
-            By redeeming this SNAP, you accept SNAP's{" "}
+            By redeeming this SNAP, you accept SNAPs{" "}
             <span className="text-blue-600 underline cursor-pointer">Terms of Service</span>
             {" "}and{" "}
             <span className="text-blue-600 underline cursor-pointer">Privacy Policy</span>.
@@ -110,7 +110,7 @@ const ClaimCodePage: React.FC = () => {
 
         {/* Help Text */}
         <p className="text-sm text-gray-600 mt-6 text-center max-w-md">
-          Don't have a claim code?{" "}
+          Dont have a claim code?{" "}
           <span className="text-blue-600 font-semibold underline cursor-pointer">
             Contact the brand
           </span>
