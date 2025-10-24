@@ -16,8 +16,7 @@ export default function About() {
               </span>
             </h2>
             <p className="text-gray-600 md:mt-6 leading-relaxed text-sm md:text-lg">
-              Snap adalah sistem identitas digital untuk fashion. Setiap produk—seperti kaos, hoodie, atau sneakers—memiliki tanda unik yang bisa dipindai dan diverifikasi lewat blockchain. Dengan Snap, setiap item jadi autentik, terlacak, dan bisa dikoleksi. Setiap produk memiliki NFT yang membuktikan asal, edisi, dan riwayat kepemilikan. Bagi brand, Snap membangun kepercayaan dan melindungi desain dari tiruan. Bagi pelanggan, Snap memastikan kepemilikan yang nyata dan terverifikasi. Snap mengubah fashion jadi pengalaman yang tepercaya.            </p>
-          </div>
+              Snap is a digital identity system for fashion. Each item—like a t-shirt, hoodie, or sneaker—has a unique tag that can be scanned and verified on the blockchain. With Snap, every product is authentic, traceable, and collectible. Each item comes with an NFT proving its origin, edition, and ownership history. For brands, Snap builds trust and protects designs from counterfeits. For customers, it guarantees real, verifiable ownership. Snap turns fashion into a trusted digital experience. </p>         </div>
           <img src="/about-image.png" alt='' className='w-[500px] hidden lg:block'></img>
         </div>
       </section>
