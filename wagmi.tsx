@@ -13,7 +13,7 @@ const queryClient = new QueryClient();
 // 2. Konfigurasi wagmi tanpa WalletConnect
 const config = createConfig(
   getDefaultConfig({
-    appName: 'Your App Name',
+    appName: 'Snap',
     walletConnectProjectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID ?? '',
     chains: [mainnet, sepolia],
     ssr: true,

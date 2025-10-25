@@ -51,11 +51,13 @@ export const useBrandRegistry = (): UseBrandRegistryReturn => {
   };
 
   const getContract = async (needSigner = false) => {
-    const provider = getProvider();
-    if (needSigner) {
-      const signer = await provider.getSigner();
-      return new ethers.Contract(CONTRACT_ADDRESS, BrandRegistryABI, signer);
-    }
+  if (needSigner && typeof window !== "undefined" && window.ethereum) {
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    const signer = await provider.getSigner();
+    return new ethers.Contract(CONTRACT_ADDRESS, BrandRegistryABI, signer);
+  }
+  // fallback ke provider read-only (tanpa wallet)
+  const provider = new ethers.JsonRpcProvider("https://sepolia.base.org");
     return new ethers.Contract(CONTRACT_ADDRESS, BrandRegistryABI, provider);
   };
 
@@ -215,7 +217,7 @@ export const useBrandRegistry = (): UseBrandRegistryReturn => {
       const brands = await contract.getAllBrands();
       return brands;
     } catch (err: any) {
-      setError(err.message);
+      setError(err.message,"Get getAllBrands err");
       return [];
     } finally {
       setLoading(false);

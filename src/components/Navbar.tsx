@@ -18,7 +18,6 @@ export default function Navbar({ className = "" }: NavbarProps) {
   const [mobileCollectionOpen, setMobileCollectionOpen] = useState(false);
 
   const { address, isConnected } = useAccount();
-
   const brandRef = useRef<HTMLDivElement>(null);
   const collectionRef = useRef<HTMLDivElement>(null);
 
@@ -105,7 +104,7 @@ export default function Navbar({ className = "" }: NavbarProps) {
                 {brandDropdown && (
                   <div className="absolute top-full mt-2 w-48 bg-white-secondary rounded-xl shadow-lg border border-gray-200 overflow-hidden animate-fadeIn">
                     <Link
-                      href="#"
+                      href={`/brand/${address}`}
                       onClick={() => setBrandDropdown(false)}
                       className="block px-6 py-3 hover:bg-blue-secondary hover:text-white-primary transition-colors duration-200"
                     >
@@ -227,7 +226,7 @@ export default function Navbar({ className = "" }: NavbarProps) {
                 <div className={`overflow-hidden transition-all duration-300 ${mobileBrandOpen ? 'max-h-40' : 'max-h-0'}`}>
                   <div className="pl-4 pt-1 flex flex-col gap-1">
                     <Link
-                      href="#"
+                      href={`/brand/${address}`}
                       onClick={handleMobileClick}
                       className="py-2 px-4 text-base rounded-lg hover:bg-blue-secondary/10 hover:text-blue-secondary transition-all duration-200"
                     >

@@ -104,6 +104,7 @@ export default function Museum() {
         // FETCH BRANDS
         const fetchedBrands: BrandData[] = [];
         const addresses = await getAllBrands();
+        console.log("Addresses from contract:", addresses);
         for (const addr of addresses) {
           const b = await readBrand(addr);
           if (b) {
