@@ -5,8 +5,11 @@ import { useParams, useRouter } from 'next/navigation';
 import { Calendar, Package, CheckCircle, XCircle } from 'lucide-react';
 import { useBrandRegistry } from '../../../hooks/useBrandRegistry';
 import { useProductSeriesNFT } from '../../../hooks/useProductSeriesNFT';
+import { useAccount } from 'wagmi'; 
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/atom/Footer';
+import MintSeriesModal from '@/components/atom/modalMintSeries';
+
 
 interface BrandDetail {
   brandName: string;
@@ -33,11 +36,25 @@ type ViewMode = "grid" | "list";
 
 const BrandPage = () => {
   const params = useParams();
-  const address = Array.isArray(params?.address) ? params.address[0] : params?.address;
+  // param address
+  const paramAddress = Array.isArray(params?.address) ? params.address[0] : params?.address;
   const router = useRouter();
+  const { address, isConnected } = useAccount();
+
 
   const { readBrand } = useBrandRegistry();
   const { getBrandSeries, readSeries } = useProductSeriesNFT();
+  const { MintSeries, loading, error } = useProductSeriesNFT();
+  const handleMintSeries = async (
+    seriesName: string,
+    imageURI: string,
+    description: string,
+    maxSupply: number
+  ) => {
+    const result = await mintSeries(seriesName, imageURI, description, maxSupply);
+    return result;
+  };
+
 
   const [brand, setBrand] = useState<BrandDetail | null>(null);
   const [seriesList, setSeriesList] = useState<SeriesDetail[]>([]);
@@ -47,17 +64,26 @@ const BrandPage = () => {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [sortBy, setSortBy] = useState<SortOption>("newest");
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
+  const [isOwner, setIsOwner] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Fetch brand detail
   useEffect(() => {
-    if (!address) return;
+    if (!paramAddress) return;
 
     const fetchBrand = async () => {
       try {
-        setLoadingPage(true);
-        const data = await readBrand(address);
+        const data = await readBrand(paramAddress);
         if (!data) throw new Error('Brand not found');
-        setBrand(data);
+        setBrand(data); 
+        console.log(paramAddress,address)
+        if (address && paramAddress.toLowerCase() === address.toLowerCase()) {
+          setIsOwner(true);
+          console.log("Welcome, owner!");
+        } else {
+          setIsOwner(false);
+          console.log("Not the owner");
+        }
       } catch (err: any) {
         setErrorPage(err.message || 'Error fetching brand');
       } finally {
@@ -66,15 +92,15 @@ const BrandPage = () => {
     };
 
     fetchBrand();
-  }, [address]);
+  }, [paramAddress,address]);
 
   // Fetch series list
   useEffect(() => {
-    if (!address) return;
-
+    if (!paramAddress) return;
+    setLoadingPage(true);
     const fetchSeries = async () => {
       try {
-        const res = await getBrandSeries(address);
+        const res = await getBrandSeries(paramAddress);
         if (!res.success || !res.data) {
           setSeriesList([]);
           return;
@@ -98,7 +124,7 @@ const BrandPage = () => {
     };
 
     fetchSeries();
-  }, [address]);
+  }, [paramAddress]);
 
   // Filter and sort
   useEffect(() => {
@@ -183,7 +209,7 @@ const BrandPage = () => {
                 <div className="flex items-start justify-between mb-4">
                   <div>
                     <div className="text-sm text-gray-500 mb-2">
-                      Brand Address: {address?.slice(0, 10)}...{address?.slice(-8)}
+                      Brand Address: {paramAddress?.slice(0, 10)}...{paramAddress?.slice(-8)}
                     </div>
                     <h1 className="text-4xl font-bold text-gray-800 mb-3">
                       {brand.brandName}
@@ -243,51 +269,26 @@ const BrandPage = () => {
                   />
                 </svg>
               </div>
-
-              {/* Right controls */}
-              <div className="flex items-center gap-3">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-gray-600">order by</span>
-                  <select
-                    value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value as SortOption)}
-                    className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-                  >
-                    <option value="newest">Newest</option>
-                    <option value="oldest">Oldest</option>
-                    <option value="most-minted">Most Minted</option>
-                  </select>
-                </div>
-
-                {/* View mode toggle */}
-                <div className="flex border border-gray-300 rounded-lg overflow-hidden">
+              {isOwner && (
+                <div className="py-6 flex gap-3">
                   <button
-                    onClick={() => setViewMode("grid")}
-                    className={`p-2 ${
-                      viewMode === "grid"
-                        ? "bg-gray-100 text-gray-900"
-                        : "bg-white text-gray-500"
-                    }`}
+                    onClick={() => setIsModalOpen(true)}
+                    className="bg-[#3d9cfb] text-white px-4 py-2 rounded-full hover:bg-[#0052ff] hover:scale-105 transition-all duration-300 shadow-sm"
                   >
-                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M3 3h8v8H3V3zm10 0h8v8h-8V3zM3 13h8v8H3v-8zm10 0h8v8h-8v-8z" />
-                    </svg>
+                    + Mint Series
                   </button>
-                  <button
-                    onClick={() => setViewMode("list")}
-                    className={`p-2 border-l border-gray-300 ${
-                      viewMode === "list"
-                        ? "bg-gray-100 text-gray-900"
-                        : "bg-white text-gray-500"
-                    }`}
-                  >
-                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M3 4h18v2H3V4zm0 7h18v2H3v-2zm0 7h18v2H3v-2z" />
-                    </svg>
+                  <button className="bg-gray-200 text-gray-800 px-4 py-2 rounded-full hover:bg-gray-300 hover:scale-105 transition-all duration-300 shadow-sm">
+                    Edit Brand
                   </button>
                 </div>
-              </div>
+              )}
             </div>
+            <MintSeriesModal
+              isOpen={isModalOpen}
+              onClose={() => setIsModalOpen(false)}
+              onMint={handleMintSeries}
+              loading={loading}
+            />
 
             {/* Title with Line */}
             <div className="mb-8 flex items-center gap-4">
