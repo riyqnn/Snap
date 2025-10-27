@@ -217,7 +217,7 @@ export const useBrandRegistry = (): UseBrandRegistryReturn => {
       const brands = await contract.getAllBrands();
       return brands;
     } catch (err: any) {
-      setError(err.message,"Get getAllBrands err");
+      setError(err.message);
       return [];
     } finally {
       setLoading(false);

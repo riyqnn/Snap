@@ -1,12 +1,14 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { Calendar, ExternalLink, Users, Database } from "lucide-react";
+import { Calendar, ExternalLink, Users, Database, QrCode } from "lucide-react";
 import { useAccount } from "wagmi";
 import useProductSeriesNFT from "@/hooks/useProductSeriesNFT";
 import { supabase } from "../../../../lib/supabaseClient";
 import Footer from "@/components/atom/Footer";
 import Navbar from "@/components/Navbar";
+import { generateQRCodeWithLogo } from '@/components/atom/qrGeneratorSeries';
+
 
 interface Collector {
   address: string;
@@ -28,14 +30,15 @@ interface ClaimCode {
 const ProductDetail = () => {
   const { id } = useParams();
   const { address } = useAccount();
-  const { readSeries, getSeriesClaimers, generateClaimLinks, loading } =
-    useProductSeriesNFT();
+  const { readSeries, getSeriesClaimers, generateClaimLinks, loading } = useProductSeriesNFT();
 
   const [series, setSeries] = useState<any>(null);
   const [collectors, setCollectors] = useState<Collector[]>([]);
   const [isOwner, setIsOwner] = useState(false);
   const [generatedCodes, setGeneratedCodes] = useState<string[]>([]);
   const [allCodes, setAllCodes] = useState<ClaimCode[]>([]); // <-- semua kode dari database
+  const [generatingQR, setGeneratingQR] = useState<string | null>(null);
+
 
   // 🔹 Fetch data series + claimers + claim codes
   useEffect(() => {
@@ -83,6 +86,18 @@ const ProductDetail = () => {
 
     fetchSeriesData();
   }, [id, address]);
+
+  const handleGenerateQR = async (claimCode: string) => {
+    setGeneratingQR(claimCode);
+    try {
+      await generateQRCodeWithLogo({ claimCode });
+    } catch (error) {
+      console.error('Error generating QR code:', error);
+      alert('Failed to generate QR code. Please try again.');
+    } finally {
+      setGeneratingQR(null);
+    }
+  };
 
   // 🔹 Generate random claim codes
   const handleGenerateCodes = async () => {
@@ -217,18 +232,19 @@ const ProductDetail = () => {
                 <table className="w-full text-sm border-t border-gray-100">
                   <thead>
                     <tr className="text-left border-b border-gray-200">
-                      <th className="py-2 px-3">#</th>
-                      <th className="py-2 px-3">Claim Code</th>
-                      <th className="py-2 px-3">Status</th>
-                      <th className="py-2 px-3">Claimed By</th>
-                      <th className="py-2 px-3">Created</th>
+                      <th className="py-2 px-3 text-center">#</th>
+                      <th className="py-2 px-3 text-center">Claim Code</th>
+                      <th className="py-2 px-3 text-center">Status</th>
+                      <th className="py-2 px-3 text-center">Claimed By</th>
+                      <th className="py-2 px-3 text-center">Created</th>
+                      <th className="py-2 px-3 text-center">QR Code</th>
                     </tr>
                   </thead>
                   <tbody>
                     {allCodes.map((code, i) => (
                       <tr
                         key={code.id}
-                        className="border-b border-gray-100 hover:bg-gray-50"
+                        className="border-b border-gray-100 hover:bg-gray-50 text-center"
                       >
                         <td className="py-2 px-3">{code.serial_number}</td>
                         <td className="py-2 px-3 font-mono text-gray-700">
@@ -250,6 +266,16 @@ const ProductDetail = () => {
                         </td>
                         <td className="py-2 px-3 text-gray-500">
                           {new Date(code.created_at).toLocaleDateString()}
+                        </td>
+                        <td className="py-2 px-3">
+                          <button
+                            onClick={() => handleGenerateQR(code.claim_code)}
+                            disabled={generatingQR === code.claim_code}
+                            className="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-primary text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-xs font-medium"
+                          >
+                            <QrCode className="w-4 h-4" />
+                            {generatingQR === code.claim_code ? 'Generating...' : 'Generate'}
+                          </button>
                         </td>
                       </tr>
                     ))}

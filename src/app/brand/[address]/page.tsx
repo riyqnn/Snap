@@ -44,17 +44,7 @@ const BrandPage = () => {
 
   const { readBrand } = useBrandRegistry();
   const { getBrandSeries, readSeries } = useProductSeriesNFT();
-  const { MintSeries, loading, error } = useProductSeriesNFT();
-  const handleMintSeries = async (
-    seriesName: string,
-    imageURI: string,
-    description: string,
-    maxSupply: number
-  ) => {
-    const result = await mintSeries(seriesName, imageURI, description, maxSupply);
-    return result;
-  };
-
+  const { mintSeries, loading, error } = useProductSeriesNFT();
 
   const [brand, setBrand] = useState<BrandDetail | null>(null);
   const [seriesList, setSeriesList] = useState<SeriesDetail[]>([]);
@@ -286,10 +276,7 @@ const BrandPage = () => {
             <MintSeriesModal
               isOpen={isModalOpen}
               onClose={() => setIsModalOpen(false)}
-              onMint={handleMintSeries}
-              loading={loading}
             />
-
             {/* Title with Line */}
             <div className="mb-8 flex items-center gap-4">
               <h2 className="text-2xl font-bold text-gray-800 whitespace-nowrap">
