@@ -23,7 +23,7 @@ const Mint: React.FC = () => {
 
   const [series, setSeries] = useState<SeriesData | null>(null);
   const [isClaimed, setIsClaimed] = useState(false);
-  const [loadingClaim, setLoadingClaim] = useState(false);
+  const [loadingClaim, setLoadingClaim] = useState(true);
 
   // 🔹 Fetch claim link info + series detail
   useEffect(() => {
@@ -31,6 +31,7 @@ const Mint: React.FC = () => {
 
     const fetchData = async () => {
       try {
+
         console.log("🔍 Fetching claim link from Supabase for code:", code);
 
         const { data: claim, error } = await supabase
@@ -43,6 +44,7 @@ const Mint: React.FC = () => {
 
         if (error || !claim) {
           console.error("❌ Invalid or missing claim link:", error);
+          setLoadingClaim(false)
           return;
         }
 
@@ -53,6 +55,7 @@ const Mint: React.FC = () => {
 
         if (!claimCheck.success) {
           console.error("❌ Error checking claim link on-chain:", claimCheck.error);
+          setLoadingClaim(false)
           return;
         }
 
@@ -77,6 +80,7 @@ const Mint: React.FC = () => {
             createdAt: Number(data.createdAt),
           });
           console.log("✅ Series data loaded:", data);
+          setLoadingClaim(false)
         } else {
           console.error("❌ Failed to load series:", result.error);
         }
@@ -147,23 +151,23 @@ const Mint: React.FC = () => {
     );
   }
 
-  if (loading)
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
-          <p className="text-blue-600 font-medium">Loading series data...</p>
-        </div>
-      </div>
-    );
-
-  if (!series)
+  if (!loadingClaim && !series)
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="bg-white p-8 rounded-2xl shadow-lg text-center max-w-md">
           <div className="text-6xl mb-4">⚠️</div>
           <h2 className="text-2xl font-bold text-gray-800 mb-2">Invalid Link</h2>
           <p className="text-gray-600">Invalid or expired claim link.</p>
+        </div>
+      </div>
+    );
+
+  if (loadingClaim)
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
+          <p className="text-blue-600 font-medium">Loading series data...</p>
         </div>
       </div>
     );
@@ -203,8 +207,8 @@ const Mint: React.FC = () => {
               <div className="relative mb-6">
                 <div className="w-48 h-48 rounded-full bg-black-secondary flex items-center justify-center p-1">
                   <img
-                    src={series.imageURI || "/placeholder-nft.png"}
-                    alt={series.seriesName}
+                    src={series?.imageURI || "/placeholder-nft.png"}
+                    alt={series?.seriesName}
                     className="w-full h-full rounded-full object-cover"
                   />
                 </div>
@@ -215,28 +219,28 @@ const Mint: React.FC = () => {
                 <div className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center">
                   <span className="text-white text-xs font-bold">N</span>
                 </div>
-                <h3 className="text-xl font-bold text-gray-800">{series.seriesName}</h3>
+                <h3 className="text-xl font-bold text-gray-800">{series?.seriesName}</h3>
               </div>
 
               {/* Description */}
-              <p className="text-gray-600 mb-2">{series.description}</p>
+              <p className="text-gray-600 mb-2">{series?.description}</p>
               
               {/* Batch Info */}
               <div className="flex items-center gap-2 text-sm text-gray-500 mb-1">
                 <span>📦</span>
-                <span>Batch {series.id}</span>
+                <span>Batch {series?.id}</span>
               </div>
 
               {/* Series ID */}
               <p className="text-sm text-gray-400 mb-1">
-                Series ID: #{series.id}
+                Series ID: #{series?.id}
               </p>
               
               <div className="flex items-center gap-2 text-sm text-gray-500">
                 <span>📅</span>
                 <span>
-                  {series.createdAt
-                    ? new Date(series.createdAt * 1000).toLocaleDateString('en-US', {
+                  {series?.createdAt
+                    ? new Date(series?.createdAt * 1000).toLocaleDateString('en-US', {
                         year: 'numeric',
                         month: 'long',
                         day: 'numeric'
