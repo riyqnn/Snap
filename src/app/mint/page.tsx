@@ -43,10 +43,14 @@ const ClaimCodePage: React.FC = () => {
         videoRef.current.srcObject = stream;
         streamRef.current = stream;
         
-        // Wait for video to be ready
         videoRef.current.onloadedmetadata = () => {
           videoRef.current?.play();
-          scanFromVideo();
+          // Mulai scanning loop
+          const scanLoop = () => {
+            scanFromVideo();
+            animationFrameRef.current = requestAnimationFrame(scanLoop);
+          };
+          scanLoop();
         };
       }
     } catch (err) {
@@ -54,6 +58,7 @@ const ClaimCodePage: React.FC = () => {
       console.error("Camera error:", err);
     }
   };
+
 
   const stopCamera = () => {
     if (animationFrameRef.current) {
@@ -74,17 +79,13 @@ const ClaimCodePage: React.FC = () => {
     const video = videoRef.current;
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
-
+    console.log('tirr')
     if (video.readyState === video.HAVE_ENOUGH_DATA && ctx) {
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
       const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      
-      // Simplified QR detection for demo
-      // In production, install and use: npm install jsqr
-      // Then: import jsQR from 'jsqr';
       const code = jsQR(imageData.data, imageData.width, imageData.height);
       if (code && code.data) {
         setClaimCode(code.data);
